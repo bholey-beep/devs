@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: bhola
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: backend_api
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: 12345678
+      DB_NAME: bhola
+      DB_PORT: 5432
+      JWT_SECRET: supersecretkey12345
+    # ❌ NO VOLUME HERE
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_ui
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    # ❌ NO VOLUME HERE
+
+volumes:
+  postgres_data:
