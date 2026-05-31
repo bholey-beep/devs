@@ -1,59 +1,67 @@
 name: Full Stack CI Pipeline
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+push:
+branches: [main]
+pull_request:
+branches: [main]
 
 jobs:
-  backend-ci:
-    name: Backend CI
-    runs-on: ubuntu-latest
+backend-ci:
+name: Backend CI
+runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+defaults:
+  run:
+    working-directory: backend
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
 
-      - name: Install backend dependencies
-        run: npm install
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
 
-      - name: Run backend build
-        run: npm run build || echo "No build step"
+  - name: Install backend dependencies
+    run: npm install
 
-      - name: Run backend tests
-        run: npm test || echo "No tests yet"
+  - name: Run backend build
+    run: npm run build || echo "No build step"
 
-  frontend-ci:
-    name: Frontend CI
-    runs-on: ubuntu-latest
+  - name: Run backend tests
+    run: npm test || echo "No tests yet"
 
-    defaults:
-      run:
-        working-directory: frontend
+  - name: Build Backend Docker Image
+    run: docker build -t devops-backend .
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+frontend-ci:
+name: Frontend CI
+runs-on: ubuntu-latest
 
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: frontend
 
-      - name: Build frontend
-        run: npm run build
-        working-directory: frontend
+defaults:
+  run:
+    working-directory: frontend
+
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: 20
+
+  - name: Install frontend dependencies
+    run: npm install
+
+  - name: Build frontend
+    run: npm run build
+
+  - name: Build Frontend Docker Image
+    run: docker build -t devops-frontend .
+
